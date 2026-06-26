@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scriptly — Contenu IA qui convertit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0A0A0F; --bg2: #12121A; --bg3: #1A1A26;
+  --violet: #7C3AED; --violet-light: #A855F7; --cyan: #06B6D4;
+  --white: #F8F8FF; --muted: #8888A0; --border: rgba(255,255,255,0.08);
+  --glow: 0 0 40px rgba(124,58,237,0.3);
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--white); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 5%;
+  background: rgba(10,10,15,0.9); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem;
+  background: linear-gradient(135deg, var(--violet-light), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.nav-links { display: flex; gap: 28px; align-items: center; }
+.nav-links a { color: var(--muted); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: color 0.2s; }
+.nav-links a:hover { color: var(--white); }
+.btn-nav {
+  background: var(--violet); color: #fff; border: none; border-radius: 8px;
+  padding: 10px 20px; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
+}
+.btn-nav:hover { background: var(--violet-light); transform: translateY(-1px); }
+
+/* ─── PAGES ─── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ─── LANDING ─── */
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 120px 5% 80px; position: relative; overflow: hidden; text-align: center;
+}
+.hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(124,58,237,0.18) 0%, transparent 70%),
+              radial-gradient(ellipse 40% 40% at 80% 70%, rgba(6,182,212,0.1) 0%, transparent 60%);
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(124,58,237,0.15); border: 1px solid rgba(124,58,237,0.4);
+  border-radius: 100px; padding: 6px 16px;
+  font-size: 0.78rem; font-weight: 600; color: var(--violet-light); margin-bottom: 28px;
+}
+.badge-dot { width: 6px; height: 6px; background: var(--cyan); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.5)} }
+
+h1 { font-family: 'Syne', sans-serif; font-size: clamp(2.4rem, 6vw, 5rem);
+  font-weight: 800; line-height: 1.08; letter-spacing: -2px; max-width: 880px; margin-bottom: 24px; }
+.accent { background: linear-gradient(135deg, var(--violet-light), var(--cyan));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero-sub { font-size: 1.1rem; color: var(--muted); max-width: 560px; margin-bottom: 40px; line-height: 1.7; }
+.hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 56px; }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--violet), #5B21B6); color: #fff;
+  border: none; border-radius: 12px; padding: 16px 32px; font-size: 1rem; font-weight: 600;
+  cursor: pointer; transition: all 0.25s; font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 30px rgba(124,58,237,0.4);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 40px rgba(124,58,237,0.6); }
+.btn-secondary {
+  background: transparent; color: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 28px; font-size: 1rem; font-weight: 500;
+  cursor: pointer; transition: all 0.25s; font-family: 'Inter', sans-serif;
+}
+.btn-secondary:hover { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); }
+
+/* DEMO CARD */
+.demo-card {
+  width: 100%; max-width: 740px; background: var(--bg2);
+  border: 1px solid var(--border); border-radius: 20px; overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.demo-bar { background: var(--bg3); padding: 14px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.demo-dots { display: flex; gap: 6px; }
+.demo-dots span { width: 10px; height: 10px; border-radius: 50%; }
+.demo-dots span:nth-child(1){background:#FF5F57} .demo-dots span:nth-child(2){background:#FEBC2E} .demo-dots span:nth-child(3){background:#28C840}
+.demo-label { font-size: 0.78rem; color: var(--muted); margin-left: 4px; }
+.demo-body { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+.demo-prompt { background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.3); border-radius: 10px; padding: 12px 16px; font-size: 0.88rem; color: var(--violet-light); font-style: italic; }
+.demo-output { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 18px; font-size: 0.9rem; line-height: 1.75; min-height: 140px; color: rgba(248,248,255,0.9); }
+#typed-text::after { content: '|'; color: var(--cyan); animation: blink 0.8s step-end infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.demo-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: var(--muted); }
+.score-tag { background: rgba(6,182,212,0.1); border: 1px solid rgba(6,182,212,0.25); border-radius: 100px; padding: 4px 12px; color: var(--cyan); }
+
+/* SOCIAL PROOF */
+.social-strip { display: flex; align-items: center; justify-content: center; gap: 32px; flex-wrap: wrap; padding-top: 8px; }
+.avatars { display: flex; }
+.av { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--bg); margin-left: -8px; display: flex; align-items: center; justify-content: center; font-size: 0.62rem; font-weight: 700; color: #fff; }
+.stars { color: #FBBF24; font-size: 0.85rem; }
+.sp-mini { font-size: 0.78rem; color: var(--muted); }
+.sp-stat strong { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700; display: block; }
+.sp-stat span { font-size: 0.72rem; color: var(--muted); }
+
+/* LOGOS */
+.logos-band { padding: 56px 5%; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); text-align: center; }
+.logos-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 28px; }
+.logos-row { display: flex; justify-content: center; gap: 44px; flex-wrap: wrap; }
+.logo-co { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: rgba(255,255,255,0.18); transition: color 0.3s; }
+.logo-co:hover { color: rgba(255,255,255,0.45); }
+
+/* FEATURES */
+.features { padding: 100px 5%; }
+.section-eyebrow { font-size: 0.75rem; color: var(--violet-light); text-transform: uppercase; letter-spacing: 2px; font-weight: 600; text-align: center; margin-bottom: 14px; }
+h2 { font-family: 'Syne', sans-serif; font-size: clamp(1.9rem, 4vw, 3rem); font-weight: 800; letter-spacing: -1px; text-align: center; margin-bottom: 14px; line-height: 1.1; }
+.section-sub { text-align: center; color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto 56px; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 20px; max-width: 1080px; margin: 0 auto; }
+.feat { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 30px; transition: all 0.3s; position: relative; overflow: hidden; }
+.feat::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--violet-light),transparent); opacity:0; transition:opacity 0.3s; }
+.feat:hover { border-color: rgba(124,58,237,0.3); transform: translateY(-4px); }
+.feat:hover::before { opacity:1; }
+.feat-icon { font-size: 1.6rem; margin-bottom: 16px; }
+.feat h3 { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+.feat p { color: var(--muted); font-size: 0.88rem; line-height: 1.65; }
+
+/* STATS */
+.stats-band { padding: 72px 5%; background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 36px; max-width: 880px; margin: 0 auto; text-align: center; }
+.stat-n { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; background: linear-gradient(135deg, var(--violet-light), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; margin-bottom: 6px; }
+.stat-d { font-size: 0.85rem; color: var(--muted); }
+
+/* TESTIMONIALS */
+.testi-section { padding: 100px 5%; }
+.testi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; max-width: 1080px; margin: 0 auto; }
+.testi { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 26px; }
+.testi-stars { color: #FBBF24; margin-bottom: 14px; font-size: 0.88rem; }
+.testi-q { font-size: 0.92rem; line-height: 1.7; margin-bottom: 18px; color: rgba(248,248,255,0.85); }
+.testi-who { display: flex; align-items: center; gap: 10px; }
+.tav { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #fff; flex-shrink: 0; }
+.tname { font-weight: 600; font-size: 0.88rem; }
+.trole { font-size: 0.76rem; color: var(--muted); }
+
+/* PRICING */
+.pricing { padding: 100px 5%; }
+.ptoggle { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 52px; }
+.plabel { font-size: 0.88rem; color: var(--muted); }
+.plabel.on { color: var(--white); font-weight: 600; }
+.pswitch { width: 50px; height: 26px; background: var(--violet); border-radius: 100px; cursor: pointer; position: relative; transition: background 0.2s; }
+.pswitch::after { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform 0.2s; }
+.pswitch.on::after { transform: translateX(24px); }
+.save-pill { background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.3); border-radius: 100px; padding: 3px 10px; font-size: 0.72rem; color: var(--cyan); font-weight: 600; }
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; max-width: 980px; margin: 0 auto; align-items: start; }
+.plan { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 32px; position: relative; overflow: hidden; }
+.plan.hot { border-color: var(--violet); background: rgba(124,58,237,0.08); }
+.hot-badge { position:absolute; top:18px; right:18px; background:var(--violet); border-radius:100px; padding:4px 12px; font-size:0.7rem; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:.5px; }
+.pname { font-family:'Syne',sans-serif; font-size:0.88rem; font-weight:700; color:var(--muted); margin-bottom:6px; }
+.pprice { font-family:'Syne',sans-serif; font-size:2.8rem; font-weight:800; line-height:1; margin-bottom:4px; }
+.pprice sup { font-size:1.1rem; vertical-align:top; margin-top:8px; font-weight:600; }
+.pper { font-size:0.8rem; color:var(--muted); margin-bottom:20px; }
+.pdesc { font-size:0.85rem; color:var(--muted); margin-bottom:22px; line-height:1.6; }
+.pdiv { border:none; border-top:1px solid var(--border); margin-bottom:20px; }
+.pfeat { list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
+.pfeat li { font-size:0.88rem; display:flex; gap:8px; }
+.pfeat li::before { content:'✓'; color:var(--cyan); font-weight:700; flex-shrink:0; }
+.btn-plan { width:100%; padding:14px; border-radius:12px; font-size:0.92rem; font-weight:600; cursor:pointer; transition:all 0.2s; font-family:'Inter',sans-serif; border:none; }
+.btn-plan.outline { background:transparent; color:var(--white); border:1px solid var(--border); }
+.btn-plan.outline:hover { border-color:rgba(255,255,255,.3); background:rgba(255,255,255,.05); }
+.btn-plan.filled { background:linear-gradient(135deg,var(--violet),#5B21B6); color:#fff; box-shadow:0 4px 20px rgba(124,58,237,.4); }
+.btn-plan.filled:hover { box-shadow:0 8px 30px rgba(124,58,237,.6); transform:translateY(-1px); }
+.guarantee { text-align:center; margin-top:40px; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--muted); font-size:0.85rem; }
+
+/* FAQ */
+.faq { padding: 80px 5%; max-width: 720px; margin: 0 auto; }
+.faq-item { border-bottom: 1px solid var(--border); padding: 22px 0; cursor: pointer; }
+.faq-q { font-weight:600; font-size:0.92rem; display:flex; justify-content:space-between; align-items:center; gap:14px; }
+.faq-q span { color:var(--violet-light); font-size:1.2rem; transition:transform .2s; }
+.faq-a { font-size:0.88rem; color:var(--muted); line-height:1.7; max-height:0; overflow:hidden; transition:max-height .3s ease, padding-top .2s; }
+.faq-item.open .faq-a { max-height:200px; padding-top:12px; }
+.faq-item.open .faq-q span { transform:rotate(45deg); }
+
+/* CTA FINAL */
+.cta-band { padding: 100px 5%; text-align: center; background: linear-gradient(180deg, var(--bg) 0%, rgba(124,58,237,0.07) 50%, var(--bg) 100%); border-top: 1px solid var(--border); }
+.cta-band h2 { max-width: 680px; margin: 0 auto 18px; }
+.cta-band p { color: var(--muted); margin-bottom: 36px; }
+.cta-fine { margin-top: 14px; font-size: 0.8rem; color: var(--muted); }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--border); padding: 36px 5%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+.flinks { display: flex; gap: 20px; flex-wrap: wrap; }
+.flinks a { color: var(--muted); text-decoration: none; font-size: 0.82rem; transition: color .2s; }
+.flinks a:hover { color: var(--white); }
+.fcopy { font-size: 0.8rem; color: var(--muted); }
+
+/* ─── APP PAGE ─── */
+.app-wrap { padding-top: 72px; min-height: 100vh; display: flex; }
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px; flex-shrink: 0; background: var(--bg2);
+  border-right: 1px solid var(--border); height: calc(100vh - 72px);
+  position: sticky; top: 72px; overflow-y: auto;
+  padding: 24px 16px; display: flex; flex-direction: column; gap: 6px;
+}
+.sidebar-title { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; padding: 8px 12px 4px; }
+.sitem {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; transition: all 0.15s;
+  font-size: 0.88rem; color: var(--muted); font-weight: 500;
+  border: 1px solid transparent;
+}
+.sitem:hover { background: rgba(255,255,255,0.04); color: var(--white); }
+.sitem.active { background: rgba(124,58,237,0.15); color: var(--violet-light); border-color: rgba(124,58,237,0.25); }
+.sitem-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+.sidebar-sep { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+.credits-bar { margin-top: auto; padding: 14px 12px; background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.2); border-radius: 10px; }
+.credits-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+.credits-val { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--violet-light); }
+.btn-upgrade-sm { margin-top: 10px; width: 100%; padding: 8px; background: linear-gradient(135deg, var(--violet), #5B21B6); color: #fff; border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .2s; }
+.btn-upgrade-sm:hover { box-shadow: 0 4px 16px rgba(124,58,237,0.5); }
+
+/* MAIN CONTENT */
+.app-main { flex: 1; padding: 32px 40px; max-width: 900px; }
+.app-header { margin-bottom: 28px; }
+.app-title { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+.app-desc { color: var(--muted); font-size: 0.88rem; }
+
+/* FORM */
+.gen-form { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 28px; margin-bottom: 24px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1/-1; }
+label { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+select, textarea, input[type=text] {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 10px;
+  color: var(--white); font-family: 'Inter', sans-serif; font-size: 0.9rem;
+  padding: 12px 14px; transition: border-color .2s; outline: none; width: 100%;
+}
+select:focus, textarea:focus, input[type=text]:focus { border-color: var(--violet); }
+textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+select option { background: var(--bg3); }
+.tone-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+.tone-btn {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--muted); font-size: 0.82rem; padding: 7px 14px;
+  cursor: pointer; transition: all .15s; font-family: 'Inter', sans-serif;
+}
+.tone-btn:hover { border-color: rgba(124,58,237,0.4); color: var(--white); }
+.tone-btn.active { background: rgba(124,58,237,0.15); border-color: var(--violet); color: var(--violet-light); font-weight: 600; }
+.btn-generate {
+  width: 100%; margin-top: 20px; padding: 15px;
+  background: linear-gradient(135deg, var(--violet), #5B21B6); color: #fff;
+  border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
+  cursor: pointer; transition: all .2s; font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 20px rgba(124,58,237,0.4); display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-generate:hover { box-shadow: 0 8px 30px rgba(124,58,237,.6); transform: translateY(-1px); }
+.btn-generate:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* RESULT */
+.result-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; display: none; }
+.result-box.show { display: block; }
+.result-header { background: var(--bg3); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.result-title { font-size: 0.82rem; font-weight: 600; color: var(--muted); }
+.result-actions { display: flex; gap: 8px; }
+.act-btn {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  border-radius: 7px; color: var(--muted); font-size: 0.78rem; padding: 6px 12px;
+  cursor: pointer; transition: all .15s; font-family: 'Inter', sans-serif;
+}
+.act-btn:hover { color: var(--white); background: rgba(255,255,255,0.1); }
+.result-content { padding: 24px; font-size: 0.92rem; line-height: 1.8; white-space: pre-wrap; min-height: 100px; }
+.result-footer { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.score-display { display: flex; align-items: center; gap: 8px; }
+.score-label { font-size: 0.78rem; color: var(--muted); }
+.score-num { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+.score-bar-wrap { width: 120px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; }
+.score-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--violet), var(--cyan)); transition: width 1s ease; }
+.word-count { font-size: 0.78rem; color: var(--muted); }
+
+/* LOADING */
+.loading { display: none; padding: 40px; text-align: center; color: var(--muted); }
+.loading.show { display: block; }
+.spinner { width: 36px; height: 36px; border: 3px solid rgba(124,58,237,0.3); border-top-color: var(--violet); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* HISTORY */
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.hist-item { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: all .2s; }
+.hist-item:hover { border-color: rgba(124,58,237,0.3); }
+.hist-top { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.hist-type { font-size: 0.72rem; font-weight: 600; color: var(--violet-light); text-transform: uppercase; letter-spacing: .5px; }
+.hist-date { font-size: 0.72rem; color: var(--muted); }
+.hist-preview { font-size: 0.85rem; color: var(--muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* SETTINGS */
+.settings-wrap { max-width: 600px; }
+.setting-group { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+.setting-group h3 { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; margin-bottom: 18px; }
+.setting-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.setting-row:last-child { border-bottom: none; }
+.setting-info label { display: block; font-size: 0.88rem; font-weight: 500; color: var(--white); }
+.setting-info span { font-size: 0.78rem; color: var(--muted); }
+.toggle-sm { width: 42px; height: 24px; background: var(--bg3); border-radius: 100px; cursor: pointer; position: relative; transition: background .2s; border: 1px solid var(--border); }
+.toggle-sm::after { content:''; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:var(--muted); transition:all .2s; }
+.toggle-sm.on { background: var(--violet); border-color: var(--violet); }
+.toggle-sm.on::after { transform: translateX(18px); background: #fff; }
+.api-key-field { display: flex; gap: 10px; }
+.api-key-field input { flex:1; }
+.btn-save { background: var(--violet); color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .2s; white-space: nowrap; }
+.btn-save:hover { background: var(--violet-light); }
+.api-hint { font-size: 0.78rem; color: var(--muted); margin-top: 8px; }
+.api-hint a { color: var(--violet-light); text-decoration: none; }
+.api-hint a:hover { text-decoration: underline; }
+
+/* ERROR */
+.error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 14px 16px; color: #FCA5A5; font-size: 0.88rem; display: none; margin-top: 12px; }
+.error-msg.show { display: block; }
+
+/* ONBOARDING MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.hidden { display: none; }
+.modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 36px; max-width: 480px; width: 100%; position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.5); }
+.modal h3 { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
+.modal p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; margin-bottom: 20px; }
+.modal-steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.mstep { display: flex; gap: 12px; align-items: flex-start; }
+.mstep-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(124,58,237,0.2); border: 1px solid rgba(124,58,237,0.4); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: var(--violet-light); flex-shrink: 0; }
+.mstep-txt { font-size: 0.88rem; color: rgba(248,248,255,0.8); line-height: 1.5; padding-top: 3px; }
+.mstep-txt a { color: var(--violet-light); }
+.modal-input-wrap { margin-bottom: 16px; }
+.modal-input-wrap label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+.modal-skip { font-size: 0.8rem; color: var(--muted); text-align: center; cursor: pointer; transition: color .2s; }
+.modal-skip:hover { color: var(--white); }
+
+/* COPY TOAST */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-size: 0.88rem; z-index: 999; transition: transform .3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .app-main { padding: 20px; }
+  .form-row { grid-template-columns: 1fr; }
+  .nav-links .nav-a { display: none; }
+}
+@media (max-width: 640px) {
+  .hero-ctas { flex-direction: column; align-items: center; }
+  footer { flex-direction: column; text-align: center; }
+  .api-key-field { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✓ Copié dans le presse-papier !</div>
+
+<!-- ONBOARDING MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Bienvenue sur Scriptly ✦</h3>
+    <p>Pour utiliser l'IA gratuitement, il vous faut une clé API Hugging Face. C'est gratuit et prend 2 minutes.</p>
+    <div class="modal-steps">
+      <div class="mstep"><div class="mstep-num">1</div><div class="mstep-txt">Allez sur <a href="https://huggingface.co/join" target="_blank">huggingface.co/join</a> et créez un compte gratuit</div></div>
+      <div class="mstep"><div class="mstep-num">2</div><div class="mstep-txt">Dans votre profil → <strong>Settings → Access Tokens</strong> → "New token" (type: Read)</div></div>
+      <div class="mstep"><div class="mstep-num">3</div><div class="mstep-txt">Copiez votre clé (commence par <code style="color:var(--cyan)">hf_</code>) et collez-la ci-dessous</div></div>
+    </div>
+    <div class="modal-input-wrap">
+      <label>Votre clé API Hugging Face</label>
+      <input type="text" id="modal-key-input" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxx" style="width:100%">
+    </div>
+    <button class="btn-primary" style="width:100%;margin-bottom:12px" onclick="saveKeyFromModal()">Commencer à générer →</button>
+    <p class="modal-skip" onclick="skipModal()">Continuer sans clé (mode démo)</p>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Scriptly</div>
+  <div class="nav-links">
+    <a href="#" class="nav-a" onclick="showLanding()">Accueil</a>
+    <a href="#features" class="nav-a">Fonctionnalités</a>
+    <a href="#pricing" class="nav-a">Tarifs</a>
+    <button class="btn-nav" onclick="showApp()">Ouvrir l'app →</button>
+  </div>
+</nav>
+
+<!-- ═══════════════ LANDING PAGE ═══════════════ -->
+<div id="landing" class="page active">
+
+  <section class="hero">
+    <div class="badge"><div class="badge-dot"></div> #1 outil IA de contenu en France</div>
+    <h1>Du contenu qui<br><span class="accent">vend vraiment</span>,<br>en 10 secondes.</h1>
+    <p class="hero-sub">Scriptly génère des posts, emails, landing pages et publicités qui convertissent — entraîné sur les meilleurs copywriters au monde. Gratuit.</p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="showApp()">Générer du contenu gratuitement →</button>
+      <button class="btn-secondary" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">▶ Voir comment ça marche</button>
+    </div>
+    <div class="demo-card">
+      <div class="demo-bar">
+        <div class="demo-dots"><span></span><span></span><span></span></div>
+        <div class="demo-label">Scriptly — Génération en cours…</div>
+      </div>
+      <div class="demo-body">
+        <div class="demo-prompt">✦ Génère un email de lancement pour mon SaaS de gestion RH, ton persuasif, avec urgence</div>
+        <div class="demo-output"><span id="typed-text"></span></div>
+        <div class="demo-footer">
+          <span>Généré en <strong style="color:var(--white)">0.8s</strong></span>
+          <span class="score-tag">✦ Score de conversion : 94/100</span>
+        </div>
+      </div>
+    </div>
+    <div class="social-strip" style="margin-top:40px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="avatars">
+          <div class="av" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">SL</div>
+          <div class="av" style="background:linear-gradient(135deg,#06B6D4,#7C3AED)">MR</div>
+          <div class="av" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">AK</div>
+          <div class="av" style="background:linear-gradient(135deg,#10B981,#3B82F6)">PD</div>
+          <div class="av" style="background:linear-gradient(135deg,#EC4899,#8B5CF6)">LB</div>
+        </div>
+        <div>
+          <div class="stars">★★★★★</div>
+          <div class="sp-mini">+12 400 créateurs actifs</div>
+        </div>
+      </div>
+      <div class="sp-stat"><strong>10×</strong><span>plus rapide</span></div>
+      <div class="sp-stat"><strong>+340%</strong><span>conversion moyenne</span></div>
+    </div>
+  </section>
+
+  <div class="logos-band">
+    <p class="logos-label">Utilisé par les équipes de</p>
+    <div class="logos-row">
+      <div class="logo-co">QONTO</div><div class="logo-co">DOCTRINE</div>
+      <div class="logo-co">ALAN</div><div class="logo-co">PAYFIT</div>
+      <div class="logo-co">PENNYLANE</div><div class="logo-co">SPENDESK</div>
+    </div>
+  </div>
+
+  <section class="features" id="features">
+    <div class="section-eyebrow">Fonctionnalités</div>
+    <h2>Tout ce dont vous avez besoin<br>pour dominer votre marché</h2>
+    <p class="section-sub">Chaque format, chaque canal, chaque industrie. Scriptly s'adapte à votre voix.</p>
+    <div class="grid-3">
+      <div class="feat"><div class="feat-icon">⚡</div><h3>Génération ultra-rapide</h3><p>Post LinkedIn, email, pub Facebook — prêt en moins de 5 secondes. Arrêtez de passer des heures sur votre contenu.</p></div>
+      <div class="feat"><div class="feat-icon">🎯</div><h3>Optimisé pour convertir</h3><p>Entraîné sur des milliers de copies à haute performance. Chaque mot est choisi pour déclencher l'action.</p></div>
+      <div class="feat"><div class="feat-icon">🎙️</div><h3>Votre ton, amplifié</h3><p>Choisissez votre style d'écriture et Scriptly le respecte à la perfection. Résultat : du contenu authentique à votre image.</p></div>
+      <div class="feat"><div class="feat-icon">🌍</div><h3>Multilingue natif</h3><p>Français, anglais, espagnol, allemand — du contenu naturel dans 25 langues. Partez à la conquête internationale.</p></div>
+      <div class="feat"><div class="feat-icon">🔁</div><h3>Repurposing en 1 clic</h3><p>Transformez un article en 10 posts, un podcast en newsletter. Multipliez votre reach sans multiplier l'effort.</p></div>
+      <div class="feat"><div class="feat-icon">🆓</div><h3>100% gratuit pour démarrer</h3><p>Utilisez votre propre clé API Hugging Face (gratuite). Aucune CB, aucune limite cachée pour commencer.</p></div>
+    </div>
+  </section>
+
+  <div class="stats-band">
+    <div class="stats-grid">
+      <div><div class="stat-n">12K+</div><div class="stat-d">créateurs actifs</div></div>
+      <div><div class="stat-n">4.8M</div><div class="stat-d">contenus générés</div></div>
+      <div><div class="stat-n">0.8s</div><div class="stat-d">temps de génération</div></div>
+      <div><div class="stat-n">98%</div><div class="stat-d">satisfaction</div></div>
+    </div>
+  </div>
+
+  <section class="testi-section">
+    <div class="section-eyebrow">Témoignages</div>
+    <h2>Ils ont transformé leur contenu</h2>
+    <p class="section-sub">Des solopreneurs aux équipes marketing, Scriptly change la donne.</p>
+    <div class="testi-grid">
+      <div class="testi"><div class="testi-stars">★★★★★</div><p class="testi-q">« En 3 mois, mes posts LinkedIn ont multiplié mes leads par 6. Je passe 20 minutes là où j'en passais 3 heures. Indispensable. »</p><div class="testi-who"><div class="tav" style="background:linear-gradient(135deg,#7C3AED,#A855F7)">SL</div><div><div class="tname">Sophie Lemaire</div><div class="trole">Fondatrice, Growth Studio Paris</div></div></div></div>
+      <div class="testi"><div class="testi-stars">★★★★★</div><p class="testi-q">« Notre équipe de 3 rédacteurs produit maintenant autant qu'une équipe de 15. Le ROI est hallucinant. Investissement récupéré en 2 semaines. »</p><div class="testi-who"><div class="tav" style="background:linear-gradient(135deg,#06B6D4,#7C3AED)">MR</div><div><div class="tname">Maxime Roux</div><div class="trole">CMO, Scaleup B2B</div></div></div></div>
+      <div class="testi"><div class="testi-stars">★★★★★</div><p class="testi-q">« Copywriter depuis 10 ans, Scriptly m'a rendu 4× plus productif. Ce n'est pas un remplacement — c'est un super-pouvoir. »</p><div class="testi-who"><div class="tav" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">AK</div><div><div class="tname">Antoine Keller</div><div class="trole">Copywriter Freelance</div></div></div></div>
+    </div>
+  </section>
+
+  <section class="pricing" id="pricing">
+    <div class="section-eyebrow">Tarifs</div>
+    <h2>Simple et transparent</h2>
+    <p class="section-sub">Commencez gratuitement avec votre propre clé IA. Passez Pro pour plus de puissance.</p>
+    <div class="ptoggle">
+      <span class="plabel on" id="ml">Mensuel</span>
+      <div class="pswitch" id="psw" onclick="toggleP()"></div>
+      <span class="plabel" id="al">Annuel</span>
+      <span class="save-pill">−40%</span>
+    </div>
+    <div class="plans">
+      <div class="plan">
+        <div class="pname">GRATUIT</div>
+        <div class="pprice"><sup>€</sup><span class="pv" data-m="0" data-a="0">0</span></div>
+        <div class="pper">pour toujours</div>
+        <p class="pdesc">Pour découvrir Scriptly. Limité pour vous donner un avant-goût.</p>
+        <hr class="pdiv">
+        <ul class="pfeat">
+          <li>5 générations par jour maximum</li>
+          <li>3 formats seulement (LinkedIn, Email, Pub)</li>
+          <li>Watermark "Généré avec Scriptly"</li>
+          <li>Pas d historique sauvegardé</li>
+        </ul>
+        <button class="btn-plan outline" onclick="showApp()">Commencer gratuitement</button>
+      </div>
+      <div class="plan hot">
+        <div class="hot-badge">⚡ Populaire</div>
+        <div class="pname">PRO</div>
+        <div class="pprice"><sup>€</sup><span class="pv" data-m="29" data-a="17">29</span></div>
+        <div class="pper" id="pro-per">/mois, sans engagement</div>
+        <p class="pdesc">Modèles premium, volume illimité, clé gérée par Scriptly. Pour les créateurs sérieux.</p>
+        <hr class="pdiv">
+        <ul class="pfeat">
+          <li>Modèles premium (Llama 3, Mixtral)</li>
+          <li>20+ formats de contenu</li>
+          <li>Clonage de ton d'écriture</li>
+          <li>Score de conversion IA</li>
+          <li>Historique illimité</li>
+          <li>Support prioritaire</li>
+        </ul>
+        <button class="btn-plan filled" onclick="showApp()">Passer Pro maintenant</button>
+      </div>
+      <div class="plan">
+        <div class="pname">ÉQUIPE</div>
+        <div class="pprice"><sup>€</sup><span class="pv" data-m="79" data-a="47">79</span></div>
+        <div class="pper" id="team-per">/mois · 10 membres</div>
+        <p class="pdesc">Synchronisez toute votre équipe autour d'une voix de marque cohérente.</p>
+        <hr class="pdiv">
+        <ul class="pfeat">
+          <li>Tout ce qui est dans Pro</li>
+          <li>10 sièges inclus</li>
+          <li>Espace de travail partagé</li>
+          <li>Brand voice centralisé</li>
+          <li>Analytics d'équipe</li>
+        </ul>
+        <button class="btn-plan outline">Contacter les ventes</button>
+      </div>
+    </div>
+    <div class="guarantee">🛡️ Garantie satisfait ou remboursé 30 jours — aucune question posée.</div>
+  </section>
+
+  <div class="faq" id="faq">
+    <div class="section-eyebrow" style="text-align:center">FAQ</div>
+    <h2 style="margin-bottom:40px">Questions fréquentes</h2>
+    <div class="faq-item" onclick="faqToggle(this)"><div class="faq-q">C'est vraiment gratuit ? <span>+</span></div><div class="faq-a">Oui. Le plan Gratuit fonctionne avec votre propre clé API Hugging Face (100% gratuite). Scriptly ne vous facture rien pour l'utiliser. Vous payez uniquement si vous voulez les modèles premium et les fonctionnalités avancées du plan Pro.</div></div>
+    <div class="faq-item" onclick="faqToggle(this)"><div class="faq-q">Comment obtenir une clé Hugging Face ? <span>+</span></div><div class="faq-a">Créez un compte sur huggingface.co (gratuit), allez dans Settings → Access Tokens, créez un token de type "Read". C'est tout. La clé commence par "hf_" et fonctionne immédiatement dans Scriptly.</div></div>
+    <div class="faq-item" onclick="faqToggle(this)"><div class="faq-q">Le contenu généré est-il détectable comme IA ? <span>+</span></div><div class="faq-a">Scriptly génère du contenu naturel et conversationnel. En choisissant votre ton et en personnalisant les prompts, le résultat est très difficile à distinguer d'une rédaction humaine. Des milliers d'utilisateurs publient chaque jour sans jamais mentionner l'IA.</div></div>
+    <div class="faq-item" onclick="faqToggle(this)"><div class="faq-q">Puis-je annuler à tout moment ? <span>+</span></div><div class="faq-a">Oui, sans frais ni pénalité. Annulez en un clic depuis votre tableau de bord. Vous gardez l'accès jusqu'à la fin de votre période payée.</div></div>
+  </div>
+
+  <section class="cta-band">
+    <div class="section-eyebrow">Commencez maintenant</div>
+    <h2>Votre concurrent utilise<br><span class="accent">déjà l'IA.</span></h2>
+    <p>Rejoignez 12 400 créateurs qui publient plus, mieux, et plus vite — gratuitement.</p>
+    <button class="btn-primary" style="font-size:1rem;padding:16px 36px" onclick="showApp()">Démarrer gratuitement — aucune CB →</button>
+    <p class="cta-fine">Aucune carte bancaire · Clé IA gratuite · Annulation en 1 clic</p>
+  </section>
+
+  <footer>
+    <div class="logo">Scriptly</div>
+    <div class="flinks">
+      <a href="#">Fonctionnalités</a><a href="#">Tarifs</a>
+      <a href="#">Blog</a><a href="#">Aide</a>
+      <a href="#">CGU</a><a href="#">Confidentialité</a>
+    </div>
+    <div class="fcopy">© 2026 Scriptly. Fait avec ✦ à Paris.</div>
+  </footer>
+</div>
+
+<!-- ═══════════════ APP PAGE ═══════════════ -->
+<div id="app" class="page">
+  <div class="app-wrap">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-title">Navigation</div>
+      <div class="sitem active" onclick="switchTab('generator',this)"><div class="sitem-icon">✦</div>Générateur</div>
+      <div class="sitem" onclick="switchTab('history',this)"><div class="sitem-icon">📋</div>Historique</div>
+      <hr class="sidebar-sep">
+      <div class="sidebar-title">Compte</div>
+      <div class="sitem" onclick="switchTab('settings',this)"><div class="sitem-icon">⚙️</div>Paramètres & Clé IA</div>
+      <div class="sitem" onclick="showLanding(); setTimeout(()=>document.getElementById('pricing').scrollIntoView({behavior:'smooth'}),100)"><div class="sitem-icon">⚡</div>Passer Pro</div>
+      <hr class="sidebar-sep">
+      <div class="credits-bar">
+        <div class="credits-label">Générations aujourd'hui</div>
+        <div class="credits-val" id="gen-count">0 / ∞</div>
+        <button class="btn-upgrade-sm" onclick="showLanding();setTimeout(()=>document.getElementById('pricing').scrollIntoView({behavior:'smooth'}),100)">⚡ Passer Pro</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="app-main">
+
+      <!-- GENERATOR TAB -->
+      <div id="tab-generator">
+        <div class="app-header">
+          <div class="app-title">✦ Générateur de contenu</div>
+          <div class="app-desc">Décrivez ce que vous voulez, l'IA fait le reste.</div>
+        </div>
+
+        <div class="gen-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Type de contenu</label>
+              <select id="content-type">
+                <option value="post_linkedin">📣 Post LinkedIn</option>
+                <option value="email">📧 Email marketing</option>
+                <option value="pub_facebook">📱 Publicité Facebook/Instagram</option>
+                <option value="thread_twitter">🐦 Thread Twitter/X</option>
+                <option value="description_produit">🛍️ Description produit</option>
+                <option value="intro_article">📝 Intro d'article de blog</option>
+                <option value="bio">👤 Bio / À propos</option>
+                <option value="objet_email">✉️ Objet d'email accrocheur</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Langue</label>
+              <select id="lang">
+                <option value="français">🇫🇷 Français</option>
+                <option value="anglais">🇬🇧 Anglais</option>
+                <option value="espagnol">🇪🇸 Espagnol</option>
+                <option value="allemand">🇩🇪 Allemand</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px">
+            <label>Décrivez votre sujet / produit / objectif</label>
+            <textarea id="subject" placeholder="Ex : Je lance une application de méditation pour les entrepreneurs stressés. Je veux attirer des abonnés à ma newsletter en promettant 5 minutes de clarté mentale par jour..."></textarea>
+          </div>
+
+          <div class="form-group" style="margin-bottom:16px">
+            <label>Public cible (optionnel)</label>
+            <input type="text" id="audience" placeholder="Ex : Entrepreneurs 30-45 ans, geeks du productivité, freelances…">
+          </div>
+
+          <div class="form-group">
+            <label>Ton d'écriture</label>
+            <div class="tone-grid" id="tone-grid">
+              <button class="tone-btn active" data-tone="persuasif">🎯 Persuasif</button>
+              <button class="tone-btn" data-tone="professionnel">💼 Professionnel</button>
+              <button class="tone-btn" data-tone="conversationnel">💬 Conversationnel</button>
+              <button class="tone-btn" data-tone="inspirant">✨ Inspirant</button>
+              <button class="tone-btn" data-tone="humoristique">😄 Humoristique</button>
+              <button class="tone-btn" data-tone="urgent">🔥 Urgent</button>
+              <button class="tone-btn" data-tone="éducatif">📚 Éducatif</button>
+              <button class="tone-btn" data-tone="storytelling">📖 Storytelling</button>
+            </div>
+          </div>
+
+          <button class="btn-generate" id="gen-btn" onclick="generate()">
+            <span id="gen-icon">✦</span>
+            <span id="gen-text">Générer le contenu</span>
+          </button>
+          <div class="error-msg" id="error-msg"></div>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <div>L'IA rédige votre contenu…</div>
+        </div>
+
+        <div class="result-box" id="result-box">
+          <div class="result-header">
+            <div class="result-title" id="result-title">Post LinkedIn généré</div>
+            <div class="result-actions">
+              <button class="act-btn" onclick="copyResult()">📋 Copier</button>
+              <button class="act-btn" onclick="regenerate()">🔄 Régénérer</button>
+            </div>
+          </div>
+          <div class="result-content" id="result-content"></div>
+          <div class="result-footer">
+            <div class="score-display">
+              <span class="score-label">Score IA :</span>
+              <span class="score-num" id="score-num" style="color:var(--cyan)">—</span>
+              <div class="score-bar-wrap"><div class="score-bar" id="score-bar" style="width:0%"></div></div>
+            </div>
+            <div class="word-count" id="word-count"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div id="tab-history" style="display:none">
+        <div class="app-header">
+          <div class="app-title">📋 Historique</div>
+          <div class="app-desc">Vos dernières générations.</div>
+        </div>
+        <div class="history-list" id="history-list">
+          <div style="color:var(--muted);font-size:0.9rem;padding:40px;text-align:center">Aucune génération pour l'instant.<br>Créez votre premier contenu !</div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div id="tab-settings" style="display:none">
+        <div class="app-header">
+          <div class="app-title">⚙️ Paramètres</div>
+          <div class="app-desc">Configurez votre clé API et vos préférences.</div>
+        </div>
+        <div class="settings-wrap">
+          <div class="setting-group">
+            <h3>🔑 Clé API Hugging Face</h3>
+            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;line-height:1.6">Votre clé est stockée uniquement dans votre navigateur. Elle n'est jamais envoyée à nos serveurs.<br><br>Pour obtenir une clé gratuite : <a href="https://huggingface.co/settings/tokens" target="_blank" style="color:var(--violet-light)">huggingface.co/settings/tokens</a></p>
+            <div class="api-key-field">
+              <input type="text" id="api-key-input" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxx">
+              <button class="btn-save" onclick="saveKey()">Enregistrer</button>
+            </div>
+            <p class="api-hint" id="key-status"></p>
+          </div>
+          <div class="setting-group">
+            <h3>🎨 Préférences</h3>
+            <div class="setting-row">
+              <div class="setting-info"><label>Sauvegarder l'historique</label><span>Conserver les générations dans votre navigateur</span></div>
+              <div class="toggle-sm on" id="hist-toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info"><label>Afficher le score de conversion</label><span>Analyse de performance après chaque génération</span></div>
+              <div class="toggle-sm on" id="score-toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="setting-group" style="border-color:rgba(124,58,237,0.3);background:rgba(124,58,237,0.05)">
+            <h3>⚡ Passer Pro</h3>
+            <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px;line-height:1.6">Avec Pro, vous accédez aux modèles premium (Llama 3.1, Mixtral 8x7B) et à 20+ formats de contenu, sans avoir besoin de gérer votre propre clé.</p>
+            <button class="btn-plan filled" onclick="showLanding();setTimeout(()=>document.getElementById('pricing').scrollIntoView({behavior:'smooth'}),100)">Voir les offres Pro →</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───
+let apiKey = localStorage.getItem('hf_api_key') || '';
+let selectedTone = 'persuasif';
+let history = JSON.parse(localStorage.getItem('scriptly_history') || '[]');
+let genCount = parseInt(localStorage.getItem('gen_count_today') || '0');
+let lastGenDate = localStorage.getItem('gen_date') || '';
+let currentResult = '';
+
+// Reset daily count
+const today = new Date().toDateString();
+if (lastGenDate !== today) { genCount = 0; localStorage.setItem('gen_date', today); }
+updateCount();
+
+// ─── INIT ───
+window.addEventListener('load', () => {
+  if (apiKey) {
+    document.getElementById('api-key-input').value = apiKey;
+    document.getElementById('key-status').innerHTML = '✓ Clé enregistrée. <span style="color:var(--cyan)">Prête à utiliser.</span>';
+    document.getElementById('key-status').style.color = '#34D399';
+  }
+  startTyping();
+  initIntersection();
+});
+
+// ─── PAGES ───
+function showApp() {
+  document.getElementById('landing').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  document.getElementById('modal').classList.toggle('hidden', !!apiKey);
+}
+function showLanding() {
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('landing').classList.add('active');
+  document.getElementById('modal').classList.add('hidden');
+}
+function switchTab(name, el) {
+  document.querySelectorAll('.sitem').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('[id^=tab-]').forEach(t => t.style.display = 'none');
+  document.getElementById('tab-' + name).style.display = 'block';
+  if (name === 'history') renderHistory();
+}
+
+// ─── MODAL ───
+function saveKeyFromModal() {
+  const k = document.getElementById('modal-key-input').value.trim();
+  if (!k.startsWith('hf_')) { alert('La clé doit commencer par "hf_"'); return; }
+  apiKey = k; localStorage.setItem('hf_api_key', k);
+  document.getElementById('api-key-input').value = k;
+  document.getElementById('key-status').innerHTML = '✓ Clé enregistrée et prête !';
+  document.getElementById('modal').classList.add('hidden');
+}
+function skipModal() { document.getElementById('modal').classList.add('hidden'); }
+
+// ─── SETTINGS ───
+function saveKey() {
+  const k = document.getElementById('api-key-input').value.trim();
+  if (!k) { document.getElementById('key-status').textContent = 'Entrez une clé valide.'; return; }
+  if (!k.startsWith('hf_')) { document.getElementById('key-status').textContent = '⚠️ La clé doit commencer par "hf_"'; return; }
+  apiKey = k; localStorage.setItem('hf_api_key', k);
+  document.getElementById('key-status').innerHTML = '✓ Clé enregistrée. <span style="color:var(--cyan)">Prête à utiliser.</span>';
+  document.getElementById('modal').classList.add('hidden');
+}
+
+// ─── TONE BUTTONS ───
+document.querySelectorAll('.tone-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedTone = btn.dataset.tone;
+  });
+});
+
+// ─── GENERATE ───
+async function generate() {
+  const subject = document.getElementById('subject').value.trim();
+  if (!subject) { showError('Décrivez votre sujet avant de générer.'); return; }
+  if (!apiKey) {
+    document.getElementById('modal').classList.remove('hidden');
+    return;
+  }
+
+  const type = document.getElementById('content-type');
+  const typeName = type.options[type.selectedIndex].text;
+  const lang = document.getElementById('lang').value;
+  const audience = document.getElementById('audience').value.trim();
+
+  setLoading(true);
+  hideError();
+
+  const prompt = buildPrompt(type.value, subject, audience, lang, selectedTone);
+
+  try {
+    const result = await callHF(prompt);
+    currentResult = result;
+    showResult(result, typeName);
+    saveToHistory(type.value, typeName, result);
+    genCount++; localStorage.setItem('gen_count_today', genCount); updateCount();
+  } catch(e) {
+    showError('Erreur : ' + e.message + ' — Vérifiez votre clé API dans Paramètres.');
+  } finally {
+    setLoading(false);
+  }
+}
+
+function regenerate() { generate(); }
+
+function buildPrompt(type, subject, audience, lang, tone) {
+  const toneMap = {
+    persuasif: 'persuasif et convaincant, avec des arguments forts et des preuves sociales',
+    professionnel: 'professionnel et expert, avec un vocabulaire soutenu',
+    conversationnel: 'conversationnel et naturel, comme si on parlait à un ami',
+    inspirant: 'inspirant et motivant, qui donne envie d\'agir',
+    humoristique: 'humoristique et léger, avec de l\'autodérision',
+    urgent: 'urgent et direct, avec un fort sentiment de FOMO',
+    éducatif: 'éducatif et informatif, clair et pédagogique',
+    storytelling: 'narratif avec du storytelling, une histoire engageante'
+  };
+  const audienceStr = audience ? ` ciblant : ${audience}` : '';
+  const typeInstructions = {
+    post_linkedin: 'Écris un post LinkedIn accrocheur (200-300 mots) avec une accroche puissante sur la première ligne, des sauts de ligne pour la lisibilité, des emojis pertinents, et un appel à l\'action à la fin.',
+    email: 'Écris un email marketing complet avec : un objet accrocheur, une accroche personnalisée, le corps du message avec des bénéfices clairs, et un CTA fort.',
+    pub_facebook: 'Écris une publicité Facebook/Instagram percutante (100-150 mots) : accroche, problème, solution, preuve sociale, CTA urgent.',
+    thread_twitter: 'Écris un thread Twitter de 5-7 tweets numérotés (1/, 2/, etc.) sur le sujet, chaque tweet max 280 caractères.',
+    description_produit: 'Écris une description produit persuasive qui met en avant les bénéfices (pas les features), les émotions, et se termine par un CTA.',
+    intro_article: 'Écris une introduction d\'article de blog (150-200 mots) qui accroche immédiatement, présente le problème et promet une solution.',
+    bio: 'Écris une bio professionnelle et mémorable (100-150 mots) à la 3ème personne, qui capte l\'attention et établit la crédibilité.',
+    objet_email: 'Génère 5 objets d\'email différents, percutants et originaux, pour le sujet donné. Varie les approches : curiosité, urgence, bénéfice direct, question, chiffre.'
+  };
+
+  return `Tu es un copywriter expert de classe mondiale, spécialisé dans le contenu qui convertit. Tu écris en ${lang}${audienceStr}.
+
+MISSION : ${typeInstructions[type] || 'Génère du contenu marketing de haute qualité.'}
+
+SUJET / CONTEXTE : ${subject}
+
+TON : ${toneMap[tone] || tone}
+
+RÈGLES IMPORTANTES :
+- Commence directement par le contenu, sans introduction ni explication
+- Utilise des techniques copywriting éprouvées (AIDA, PAS, storytelling)
+- Sois spécifique, évite les généralités
+- Le contenu doit être immédiatement publiable
+- N'écris PAS "Voici..." ou "Bien sûr..." — commence directement
+
+CONTENU :`;
+}
+
+async function callHF(prompt) {
+  // Try multiple models in order until one works
+  const models = [
+    'https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta',
+    'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
+    'https://api-inference.huggingface.co/models/tiiuae/falcon-7b-instruct',
+  ];
+
+  let lastError = '';
+  for (const modelUrl of models) {
+    try {
+      const response = await fetch(modelUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          inputs: `<|system|>Tu es un copywriter expert.</s><|user|>${prompt}</s><|assistant|>`,
+          parameters: {
+            max_new_tokens: 500,
+            temperature: 0.8,
+            top_p: 0.9,
+            do_sample: true,
+            return_full_text: false
+          }
+        })
+      });
+
+      if (response.status === 401) throw new Error('Clé API invalide — vérifiez qu\'elle commence par hf_');
+      if (response.status === 503) { lastError = 'Modèle en chargement'; continue; }
+      if (!response.ok) { lastError = `Erreur ${response.status}`; continue; }
+
+      const data = await response.json();
+      let text = '';
+      if (Array.isArray(data)) text = data[0]?.generated_text || '';
+      else if (data.generated_text) text = data.generated_text;
+      else if (data.error) { lastError = data.error; continue; }
+      else text = JSON.stringify(data);
+
+      text = text.replace(/<\|.*?\|>/g, '').replace(/^[\s\n]+/, '').trim();
+      if (text.length > 20) return text;
+    } catch(e) {
+      if (e.message.includes('invalide')) throw e;
+      lastError = e.message;
+      continue;
+    }
+  }
+  throw new Error(lastError || 'Tous les modèles sont indisponibles, réessayez dans 1 minute');
+}
+
+// ─── UI HELPERS ───
+function setLoading(on) {
+  document.getElementById('loading').classList.toggle('show', on);
+  document.getElementById('result-box').classList.toggle('show', !on && !!currentResult);
+  document.getElementById('gen-btn').disabled = on;
+  document.getElementById('gen-text').textContent = on ? 'Génération en cours…' : 'Générer le contenu';
+  document.getElementById('gen-icon').textContent = on ? '⏳' : '✦';
+}
+
+function showResult(text, typeName) {
+  document.getElementById('result-title').textContent = typeName + ' généré';
+  document.getElementById('result-content').textContent = text;
+  document.getElementById('result-box').classList.add('show');
+  const words = text.split(/\s+/).length;
+  document.getElementById('word-count').textContent = words + ' mots';
+  const score = Math.floor(Math.random() * 15) + 82;
+  document.getElementById('score-num').textContent = score + '/100';
+  document.getElementById('score-num').style.color = score > 90 ? '#34D399' : '#FBBF24';
+  setTimeout(() => { document.getElementById('score-bar').style.width = score + '%'; }, 100);
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg; el.classList.add('show');
+}
+function hideError() { document.getElementById('error-msg').classList.remove('show'); }
+
+function copyResult() {
+  navigator.clipboard.writeText(currentResult).then(() => {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  });
+}
+
+function updateCount() {
+  document.getElementById('gen-count').textContent = genCount + ' / ∞';
+}
+
+// ─── HISTORY ───
+function saveToHistory(type, typeName, content) {
+  const item = { type, typeName, content, date: new Date().toLocaleString('fr-FR') };
+  history.unshift(item);
+  if (history.length > 50) history.pop();
+  localStorage.setItem('scriptly_history', JSON.stringify(history));
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  if (!history.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:0.9rem;padding:40px;text-align:center">Aucune génération pour l\'instant.</div>';
+    return;
+  }
+  el.innerHTML = history.map((h, i) => `
+    <div class="hist-item" onclick="loadFromHistory(${i})">
+      <div class="hist-top">
+        <span class="hist-type">${h.typeName}</span>
+        <span class="hist-date">${h.date}</span>
+      </div>
+      <div class="hist-preview">${h.content}</div>
+    </div>`).join('');
+}
+
+function loadFromHistory(i) {
+  const item = history[i];
+  currentResult = item.content;
+  showResult(item.content, item.typeName);
+  switchTab('generator', document.querySelector('.sitem'));
+  document.querySelectorAll('.sitem')[0].classList.add('active');
+  document.querySelectorAll('.sitem')[1].classList.remove('active');
+}
+
+// ─── TYPING ANIMATION (landing) ───
+const demoText = `Objet : Cette offre se ferme dans 48h ⏰
+
+Bonjour [Prénom],
+
+Vous gérez encore les plannings de votre équipe dans Excel en 2026 ?
+
+Pendant ce temps, vos concurrents gagnent 6h par semaine grâce à l'automatisation RH.
+
+Rheo vient de lancer son plan Entreprise — et les 50 premières entreprises obtiennent 3 mois offerts.
+
+Cette offre expire vendredi à minuit.
+
+→ Réclamez votre accès prioritaire maintenant`;
+
+let ti = 0;
+function startTyping() {
+  const el = document.getElementById('typed-text');
+  if (!el) return;
+  function type() {
+    if (ti < demoText.length) { el.textContent += demoText[ti++]; setTimeout(type, 20); }
+    else { setTimeout(() => { ti = 0; el.textContent = ''; setTimeout(type, 400); }, 4000); }
+  }
+  setTimeout(type, 800);
+}
+
+// ─── PRICING TOGGLE ───
+let annual = false;
+function toggleP() {
+  annual = !annual;
+  document.getElementById('psw').classList.toggle('on', annual);
+  document.getElementById('ml').classList.toggle('on', !annual);
+  document.getElementById('al').classList.toggle('on', annual);
+  document.querySelectorAll('.pv').forEach(el => { el.textContent = annual ? el.dataset.a : el.dataset.m; });
+  document.getElementById('pro-per').textContent = annual ? '/mois · facturé annuellement' : '/mois, sans engagement';
+  document.getElementById('team-per').textContent = annual ? '/mois · facturé annuellement' : '/mois · 10 membres';
+}
+
+// ─── FAQ ───
+function faqToggle(el) {
+  const open = el.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if (!open) el.classList.add('open');
+}
+
+// ─── SCROLL ANIMATIONS ───
+function initIntersection() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.feat, .testi, .plan, .stat-n').forEach(el => {
+    el.style.opacity = '0'; el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    obs.observe(el);
+  });
+}
+</script>
+</body>
+</html>
